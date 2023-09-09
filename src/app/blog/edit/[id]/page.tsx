@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect, useRef } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 
+// 編集用APIのfetch
 const editBlog = async (title: string | undefined, description: string | undefined, id: number) => {
   const res = await fetch(`http://localhost:3000/api/blog/${id}`, {
     method: 'PUT',
@@ -22,6 +23,18 @@ const getBlogById = async (id: number) => {
   return data.post;
 };
 
+// 削除用APIのfetch
+const deleteBlog = async (id: number) => {
+  const res = await fetch(`http://localhost:3000/api/blog/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  return res.json();
+};
+
 const EditPost = ({ params }: { params: { id: number } }) => {
   const router = useRouter();
   const titleRef = useRef<HTMLInputElement | null>(null);
@@ -34,6 +47,15 @@ const EditPost = ({ params }: { params: { id: number } }) => {
     await editBlog(titleRef.current?.value, descriptionRef.current?.value, params.id);
 
     toast.success('Successfully Editted!', { id: 'successfully-posted' });
+
+    router.push('/');
+    router.refresh();
+  };
+
+  const handleDelete = async () => {
+    toast.loading('Now Deleting...');
+    await deleteBlog(params.id);
+    toast.success('Successfully Deleted.');
 
     router.push('/');
     router.refresh();
@@ -73,7 +95,10 @@ const EditPost = ({ params }: { params: { id: number } }) => {
             <button className='font-semibold px-4 py-2 shadow-xl bg-slate-200 rounded-lg m-auto hover:bg-slate-100'>
               更新
             </button>
-            <button className='ml-2 font-semibold px-4 py-2 shadow-xl bg-red-400 rounded-lg m-auto hover:bg-slate-100'>
+            <button
+              onClick={handleDelete}
+              className='ml-2 font-semibold px-4 py-2 shadow-xl bg-red-400 rounded-lg m-auto hover:bg-slate-100'
+            >
               削除
             </button>
           </form>
