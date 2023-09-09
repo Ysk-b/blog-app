@@ -1,16 +1,32 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import React, { useRef } from 'react';
 
+const postBlog = async (title: string | undefined, description: string | undefined) => {
+  const res = await fetch('http://localhost:3000/api/blog', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ title, description }),
+  });
+  
+  return res.json();
+};
+
 const PostBlog = () => {
+  const router = useRouter();
   const titleRef = useRef<HTMLInputElement | null>(null);
   const descriptionRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    console.log(titleRef);
-    console.log(descriptionRef);
+
+    await postBlog(titleRef.current?.value, descriptionRef.current?.value);
+
+    router.push("/");
+    router.refresh();
   };
 
   return (
