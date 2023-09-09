@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 
 const editBlog = async (title: string | undefined, description: string | undefined, id: number) => {
@@ -14,6 +14,12 @@ const editBlog = async (title: string | undefined, description: string | undefin
   });
 
   return res.json();
+};
+
+const getBlogById = async (id: number) => {
+  const res = await fetch(`http://localhost:3000/api/blog/${id}`);
+  const data = await res.json();
+  return data.post;
 };
 
 const EditPost = ({ params }: { params: { id: number } }) => {
@@ -33,9 +39,22 @@ const EditPost = ({ params }: { params: { id: number } }) => {
     router.refresh();
   };
 
+  useEffect(() => {
+    getBlogById(params.id)
+      .then((data) => {
+        if (titleRef.current && descriptionRef.current) {
+          titleRef.current.value = data.title;
+          descriptionRef.current.value = data.description;
+        }
+      })
+      .catch((err) => {
+        toast.error('Error', { id: 'Error' });
+      });
+  }, []);
+
   return (
     <>
-      < Toaster/>
+      <Toaster />
       <div className='w-full m-auto flex my-4'>
         <div className='flex flex-col justify-center items-center m-auto'>
           <p className='text-2xl text-slate-200 font-bold p-3'>ブログの編集 🚀</p>
